@@ -1,0 +1,49 @@
+version: "3.1"
+
+services:
+  rabbit-1:
+    image: rabbitmq:3.8-management
+    container_name: rabbit-1
+    hostname: rabbit-1
+    ports:
+      - "8081:15672"
+    volumes:
+      - ./erlang.cookie:/var/lib/rabbitmq/.erlang.cookie
+      - ./config/rabbit-1/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    networks:
+      - rabbits
+  
+  rabbit-2:
+    image: rabbitmq:3.8-management
+    container_name: rabbit-2
+    hostname: rabbit-2
+    ports:
+      - "8082:15672"
+    volumes:
+      - ./erlang.cookie:/var/lib/rabbitmq/.erlang.cookie
+      - ./config/rabbit-2/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    networks:
+      - rabbits
+    depends_on:
+      - rabbit-1
+  
+  rabbit-3:
+    build:
+      context: .
+      args:
+        rabbit_hostname: "rabbit-3"
+
+    container_name: rabbit-3
+    hostname: rabbit-3
+    ports:
+      - "8083:15672"
+    volumes:
+      - ./erlang.cookie:/var/lib/rabbitmq/.erlang.cookie
+      - ./config/rabbit-3/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    networks:
+      - rabbits
+    depends_on:
+      - rabbit-1
+
+networks:
+  rabbits:
